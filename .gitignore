@@ -1,0 +1,49 @@
+# Entorno virtual
+.venv/
+env/
+venv/
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de configuración del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+
+# Configuraciones de VS Code
+.vscode/
+
+# Archivos de entorno
+.env
+
+# Archivos de caché de test
+.pytest_cache/
+
+# Archivos de bases de datos locales o SQLite
+*.sqlite3
+
+# Dist y build
+dist/
+build/
+*.egg-info/
+
+# Archivos específicos de FastAPI/Starlette
+instance/
+*.db
+
+# Archivos de cobertura
+htmlcov/
+.coverage
+.tox/
+
+# mypy
+.mypy_cache/
+
+# Otros
+*.bak
+*.swp
