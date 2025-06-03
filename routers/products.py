@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,Depends
 from pydantic import BaseModel
+from .jwt_auth_users import current_user
 
 router = APIRouter(prefix="/products",
                    tags=["products"],

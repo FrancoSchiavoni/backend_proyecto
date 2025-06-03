@@ -1,16 +1,16 @@
-from fastapi import FastAPI,Depends,HTTPException, status
+from fastapi import FastAPI,Depends,HTTPException, status, APIRouter
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from datetime import datetime, timedelta,timezone
+from settings import settings
 
-ALGORITHM = "HS256"
-SECRET = "dab8102e5577c935146ec54a9dd2799a3542761baa729f37ac99ec4310440feb"
-ACCESS_TOKEN_DURATION = 1
+router = APIRouter(prefix="/jwt",
+                   tags=["auth"],
+                   responses={404:{"message": "No encontrado"}})
 
 
-app = FastAPI()
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 
 crypt = CryptContext(schemes=["bcrypt"])
@@ -57,8 +57,8 @@ async def auth_user(token: str = Depends(oauth2)):
         headers={"WWW-Authenticate": "Bearer"})
 
     try:
-        username = jwt.decode(token, SECRET, algorithms=[ALGORITHM]).get("sub")
-        print(username)
+        username = jwt.decode(token, settings.settings.secret_key, 
+            algorithms=[settings.settings.algorithm]).get("sub")
         if username is None:
             raise auth_exception
     except JWTError:
@@ -74,7 +74,7 @@ async def current_user(user: User = Depends(auth_user)):
             detail="Usuario inactivo")
     return user
 
-@app.post("/login")
+@router.post("/login")
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     user_db = users_db.get(form.username)
     if not user_db:
@@ -86,12 +86,14 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
 
     access_token = {
         "sub":user.username,
-        "exp":datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_DURATION),
+        "exp":datetime.now(timezone.utc) + timedelta(minutes= settings.settings.access_token_duration),
     }
 
-    return {"access_token": jwt.encode(access_token, SECRET, algorithm=ALGORITHM), "token_type": "bearer"}
+    return {"access_token": jwt.encode(access_token, settings.settings.secret_key, 
+            algorithm=settings.settings.algorithm), 
+            "token_type": "bearer"}
 
 
-@app.get("/users/me")
+@router.get("/users/me")
 async def me(user: User = Depends(current_user)):
     return user
