@@ -46,7 +46,7 @@ async def user(user: User):
     if type(search_user(user.id)) == User:
         raise HTTPException(status_code=404, detail="El usuario ya existe")
     else: 
-        users_test_list.routerend(user)
+        users_test_list.append(user)
         return user
 
 #PUT

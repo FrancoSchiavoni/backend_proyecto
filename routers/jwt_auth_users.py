@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta,timezone
 from settings import settings
 
+
 router = APIRouter(prefix="/jwt",
                    tags=["auth"],
                    responses={404:{"message": "No encontrado"}})
@@ -67,7 +68,7 @@ async def auth_user(token: str = Depends(oauth2)):
     return search_user(username)
 
 
-async def current_user(user: User = Depends(auth_user)):
+async def current_user( user: User = Depends(auth_user)):
     if user.disable:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
