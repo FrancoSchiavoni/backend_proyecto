@@ -2,7 +2,7 @@ from sqlmodel import Session, select
 from db.models.user import Usuario
 from schemas.user import UsuarioCreate
 
-async def get_usuario(db: Session, usuario_id: int):
+def get_usuario(db: Session, usuario_id: int):
     return db.get(Usuario, usuario_id)
 
 async def get_usuario_email(db: Session, email: str):
@@ -10,7 +10,7 @@ async def get_usuario_email(db: Session, email: str):
     user = db.exec(statement).first()
     return user
 
-async def get_usuarios(db: Session, skip: int = 0, limit: int = 100):
+def get_usuarios(db: Session, skip: int = 0, limit: int = 100):
     return db.exec(select(Usuario).offset(skip).limit(limit)).all()
 
 async def create_usuario(db: Session, usuario: UsuarioCreate):
