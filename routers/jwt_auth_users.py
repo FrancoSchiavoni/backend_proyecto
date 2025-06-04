@@ -9,6 +9,7 @@ from db.client import get_session
 from schemas.user import UsuarioRead
 from crud.user import get_usuario_email
 
+
 router = APIRouter(prefix="/jwt",
                    tags=["auth"],
                    responses={404:{"message": "No encontrado"}})
