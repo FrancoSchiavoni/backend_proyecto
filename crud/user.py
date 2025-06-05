@@ -10,7 +10,7 @@ async def get_usuario_email(db: Session, email: str):
     user = db.exec(statement).first()
     return user
 
-def get_usuarios(db: Session, skip: int = 0, limit: int = 100):
+async def get_usuarios(db: Session, skip: int = 0, limit: int = 100):
     return db.exec(select(Usuario).offset(skip).limit(limit)).all()
 
 async def create_usuario(db: Session, usuario: UsuarioCreate):

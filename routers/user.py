@@ -9,7 +9,7 @@ router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 @router.get("/", response_model=List[UsuarioRead])
 async def listar_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
-    return get_usuarios(db, skip, limit)
+    return await get_usuarios(db, skip, limit)
 
 @router.get("/{usuario_id}", response_model=UsuarioRead)
 async def leer_usuario(usuario_id: int, db: Session = Depends(get_session)):
