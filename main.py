@@ -15,6 +15,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(jwt_auth_users.router)
-app.include_router(user.router, dependencies=[Depends(jwt_auth_users.current_user)])
+app.include_router(user.router)
 app.include_router(ticket.router, dependencies=[Depends(jwt_auth_users.current_user)])
 app.include_router(cliente.router, dependencies=[Depends(jwt_auth_users.current_user)])

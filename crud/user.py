@@ -19,3 +19,11 @@ async def create_usuario(db: Session, usuario: UsuarioCreate):
     db.commit()
     db.refresh(nuevo_usuario)
     return nuevo_usuario
+
+async def delete_usuario(db: Session, usuario_id: int) -> bool:
+    usuario = db.get(Usuario, usuario_id) # Using db.get for primary key lookup
+    if usuario:
+        db.delete(usuario)
+        db.commit()
+        return True
+    return False
