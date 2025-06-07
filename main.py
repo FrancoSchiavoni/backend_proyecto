@@ -5,7 +5,7 @@ from db.client import engine
 from db.models.user import Usuario
 from db.models.ticket import Ticket
 from db.models.cliente import Cliente
-from routers import ticket, user, jwt_auth_users, cliente, adjunto
+from routers import ticket, user, jwt_auth_users, cliente, adjunto, ticket_intervencion
 
 
 @asynccontextmanager
