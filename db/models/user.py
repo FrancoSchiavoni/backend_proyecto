@@ -1,6 +1,8 @@
-from sqlmodel import SQLModel, Field
-from typing import Optional,Union
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional,Union, List, TYPE_CHECKING
 from datetime import datetime
+if TYPE_CHECKING:
+    from db.models.adjunto import Adjunto
 
 class Usuario(SQLModel, table=True):
     id_personal: Union[int, None] = Field(default=None, primary_key=True)
@@ -12,3 +14,4 @@ class Usuario(SQLModel, table=True):
     fecha_ingreso: Union[datetime, None] = None
     fecha_egreso: Union[datetime, None] = None
     password: str
+    adjuntos: Optional[List["Adjunto"]] = Relationship(back_populates="usuario_autor")
