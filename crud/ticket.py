@@ -1,10 +1,13 @@
 from sqlmodel import Session, select
 from db.models.ticket import Ticket
+from schemas.ticket import TicketConIntervenciones
 #from schemas.ticket import UsuarioCreate
 
 
 def get_ticket(db: Session, ticket_id: int):
     return db.get(Ticket, ticket_id)
+
+
 
 
 async def get_all_tickets(db: Session):

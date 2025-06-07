@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from db.client import get_session
 from db.models.ticket import Ticket
+from schemas.ticket import TicketConIntervenciones
 from crud.ticket import  create_ticket, get_all_tickets, get_ticket, filter_tickets
 from typing import List
 
@@ -15,7 +16,7 @@ async def listar_tickets(db: Session = Depends(get_session)):
     return await get_all_tickets(db)
 
 
-@router.get("/{ticket_id}", response_model=Ticket)
+@router.get("/{ticket_id}", response_model=TicketConIntervenciones)
 async def leer_ticket(ticket_id: int, db: Session = Depends(get_session)):
     ticket = get_ticket(db, ticket_id)
     if not ticket:
