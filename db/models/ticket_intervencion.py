@@ -6,9 +6,8 @@ if TYPE_CHECKING:
     from db.models.ticket import Ticket
 
 
-
 class TicketIntervencion(SQLModel, table=True):
-    id_caso: int | None = Field(default=None, foreign_key="ticket.id_caso")
+    id_caso: Optional[int] = Field(default=None, foreign_key="ticket.id_caso")
     id_intervencion: Optional[int] = Field(default=None, primary_key=True) 
     fecha_vencimiento: datetime
     fecha: datetime

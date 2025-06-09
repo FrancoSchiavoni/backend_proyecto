@@ -7,9 +7,6 @@ from schemas.ticket import TicketConIntervenciones
 def get_ticket(db: Session, ticket_id: int):
     return db.get(Ticket, ticket_id)
 
-
-
-
 async def get_all_tickets(db: Session):
     statement = select(Ticket)
     tickets = db.exec(statement).all()

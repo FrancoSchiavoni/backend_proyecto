@@ -20,7 +20,7 @@ class IntervencionReadSinTicket(TicketIntervencionBase):
 class IntervencionRead(TicketIntervencionBase):
     id_caso: int
     id_intervencion: int
-    ticket: TicketRead | None = None
+    ticket: Optional[TicketRead] = None
 
 
 
