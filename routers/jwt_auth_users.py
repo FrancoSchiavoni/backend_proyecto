@@ -10,11 +10,7 @@ from schemas.user import UsuarioRead
 from crud.user import get_usuario_email
 
 
-router = APIRouter(prefix="/jwt",
-                   tags=["auth"],
-                   responses={404:{"message": "No encontrado"}})
-
-
+router = APIRouter(prefix="/jwt", tags=["auth"], responses={404:{"message": "No encontrado"}})
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 crypt = CryptContext(schemes=["bcrypt"])
 
@@ -33,7 +29,6 @@ async def auth_user(db: Session = Depends(get_session), token: str = Depends(oau
         raise auth_exception
 
     return await get_usuario_email(db, email)
-
 
 async def current_user(user: UsuarioRead = Depends(auth_user)):
     return user
@@ -72,7 +67,6 @@ async def login(response: Response, db: Session = Depends(get_session), form: OA
 
     return {"access_token": access_token, "token_type": "bearer"}
 
-
 @router.post("/refresh")
 async def refresh_token(request: Request):
     refresh_token = request.cookies.get("refresh_token")
@@ -93,7 +87,3 @@ async def refresh_token(request: Request):
     }, settings.settings.secret_key, algorithm=settings.settings.algorithm)
 
     return {"access_token": new_access_token, "token_type": "bearer"}
-
-@router.get("/users/me", response_model=UsuarioRead)
-async def me(user: UsuarioRead = Depends(current_user)):
-    return user

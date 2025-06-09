@@ -17,7 +17,6 @@ from routers.jwt_auth_users import current_user
 router = APIRouter(prefix="/adjuntos", tags=["adjuntos"])
 
 UPLOAD_DIRECTORY = crud_adjunto.ATTACHMENT_DIR
-
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 @router.post("/{ticket_id}", response_model=AdjuntoRead)

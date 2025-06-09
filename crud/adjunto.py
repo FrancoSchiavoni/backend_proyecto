@@ -6,7 +6,6 @@ from sqlmodel import Session, select
 from db.models.adjunto import Adjunto # Asegúrate de que la ruta sea correcta
 from schemas.adjunto import AdjuntoCreate, AdjuntoRead
 
-
 ATTACHMENT_DIR = "static/uploads"
 
 async def get_adjunto(db: Session, adjunto_id: int) -> Optional[Adjunto]:
@@ -26,7 +25,7 @@ async def create_adjunto(db: Session, filename: str, filepath: str, ticket_id: i
         filepath=filepath,
         id_caso=ticket_id,
         id_usuario_autor=usuario_id,
-        fecha=datetime.now() # Se genera la fecha aquí
+        fecha=datetime.now()
     )
     db.add(db_adjunto)
     db.commit()
@@ -52,7 +51,7 @@ async def delete_adjunto(db: Session, adjunto_id: int) -> bool:
         return True
     return False
 
-# Funciones de utilidad para el manejo de archivos
+
 def get_attachment_path(filename: str) -> str:
     """Genera una ruta única para el archivo."""
     # Para evitar colisiones y organizar, puedes usar un UUID o una estructura de carpetas por fecha/ID
