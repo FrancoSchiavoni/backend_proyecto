@@ -1,6 +1,7 @@
 from sqlmodel import Session, select
 from db.models.user import Usuario
 from schemas.user import UsuarioCreate
+from settings.security import get_password_hash
 
 def get_usuario(db: Session, usuario_id: int):
     return db.get(Usuario, usuario_id)
@@ -15,6 +16,8 @@ async def get_usuarios(db: Session, skip: int = 0, limit: int = 100):
 
 async def create_usuario(db: Session, usuario: UsuarioCreate):
     nuevo_usuario = Usuario.model_validate(usuario)
+    hashed_password = get_password_hash(nuevo_usuario.password)
+    nuevo_usuario.password = hashed_password
     db.add(nuevo_usuario)
     db.commit()
     db.refresh(nuevo_usuario)
