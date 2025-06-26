@@ -1,6 +1,7 @@
 from typing import Optional,TYPE_CHECKING, List
 from datetime import datetime
 from sqlmodel import SQLModel, Field
+from schemas.cliente import ClienteRead 
 
 class TicketBase(SQLModel):
     titulo: str = Field(max_length=500)
@@ -28,6 +29,6 @@ class TicketIntervencionBase(SQLModel):
 
 class TicketConIntervenciones(TicketRead):
     intervenciones: list[TicketIntervencionBase] = []
-
+    cliente: Optional[ClienteRead] = None
 
 

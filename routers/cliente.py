@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from db.client import get_session
 from db.models.cliente import Cliente
+from schemas.cliente import ClienteCreate, ClienteRead
 from crud.cliente import get_cliente, get_clientes, create_cliente
 from typing import List
 
@@ -11,7 +12,7 @@ router = APIRouter(prefix="/clientes", tags=["clientes"])
 async def listar_clientes(skip: int = 0,  db: Session = Depends(get_session)):
     return await get_clientes(db, skip)
 
-@router.get("/{cliente_id}", response_model=Cliente)
+@router.get("/{cliente_id}", response_model=ClienteRead)
 async def leer_cliente(cliente_id: int, db: Session = Depends(get_session)):
     cliente = get_cliente(db, cliente_id)
     if not cliente:
@@ -19,5 +20,5 @@ async def leer_cliente(cliente_id: int, db: Session = Depends(get_session)):
     return cliente
 
 @router.post("/", response_model=Cliente)
-async def crear_cliente(cliente: Cliente, db: Session = Depends(get_session)):
-    return await create_cliente(db, cliente)    
+async def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_session)): # Usamos ClienteCreate para el body
+    return await create_cliente(db, cliente)
