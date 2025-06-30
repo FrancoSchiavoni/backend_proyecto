@@ -19,7 +19,6 @@ async def auth_user(db: Session = Depends(get_session), token: str = Depends(oau
         status_code=status.HTTP_401_UNAUTHORIZED, 
         detail="Credenciales de autenticacion invalida", 
         headers={"WWW-Authenticate": "Bearer"})
-
     try:
         email = jwt.decode(token, settings.settings.secret_key, 
             algorithms=[settings.settings.algorithm]).get("sub")
@@ -87,3 +86,7 @@ async def refresh_token(request: Request):
     }, settings.settings.secret_key, algorithm=settings.settings.algorithm)
 
     return {"access_token": new_access_token, "token_type": "bearer"}
+
+@router.get("/users/me", response_model=UsuarioRead)
+async def me(user: UsuarioRead = Depends(current_user)):
+    return user
