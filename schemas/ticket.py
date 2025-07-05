@@ -30,5 +30,6 @@ class TicketIntervencionBase(SQLModel):
 class TicketConIntervenciones(TicketRead):
     intervenciones: list[TicketIntervencionBase] = []
     cliente: Optional[ClienteRead] = None
+    tecnico: Optional[str]  = None 
 
 

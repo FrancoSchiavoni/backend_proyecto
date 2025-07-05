@@ -1,5 +1,7 @@
 from sqlmodel import Session, select
 from db.models.ticket import Ticket
+from db.models.cliente import Cliente
+from db.models.user import Usuario
 from schemas.ticket import TicketConIntervenciones
 #from schemas.ticket import UsuarioCreate
 
@@ -8,7 +10,7 @@ def get_ticket(db: Session, ticket_id: int):
     return db.get(Ticket, ticket_id)
 
 async def get_all_tickets(db: Session):
-    statement = select(Ticket)
+    statement = select(Ticket, Cliente, Usuario).join(Usuario, Ticket.id_personal_asignado == Usuario.id_personal).join(Cliente, Ticket.id_cliente == Cliente.id_cliente)
     tickets = db.exec(statement).all()
     return tickets
 

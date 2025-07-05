@@ -10,9 +10,19 @@ from typing import List
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
-@router.get("/", response_model=List[Ticket])
+@router.get("/", response_model=List[TicketConIntervenciones])
 async def listar_tickets(db: Session = Depends(get_session)):
-    return await get_all_tickets(db)
+    tickets = await get_all_tickets(db)
+    response_tickets = []
+    # Asignar cliente a cada ticket si existe
+    for ticket, cliente, tecnico in tickets:
+        ticket =TicketConIntervenciones.model_validate(ticket)
+        if cliente:
+            ticket.cliente = ClienteRead.model_validate(cliente)
+        if tecnico:
+            ticket.tecnico = tecnico.nombre if tecnico else None
+        response_tickets.append(ticket)
+    return response_tickets
 
 @router.get("/{ticket_id}", response_model=TicketConIntervenciones)
 async def leer_ticket(
