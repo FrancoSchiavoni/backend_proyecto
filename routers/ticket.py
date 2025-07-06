@@ -5,6 +5,7 @@ from db.models.ticket import Ticket
 from schemas.ticket import TicketConIntervenciones
 from crud.ticket import  create_ticket, get_all_tickets, get_ticket, filter_tickets
 from crud.cliente import get_cliente
+from crud.user import get_usuario
 from schemas.cliente import ClienteRead
 from typing import List
 
@@ -35,6 +36,9 @@ async def leer_ticket(
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
 
     response_ticket = TicketConIntervenciones.model_validate(ticket)
+    tecnico = get_usuario(db, ticket.id_personal_asignado)
+    if tecnico:
+        response_ticket.tecnico = tecnico.nombre
     if incluir_cliente:
         cliente_db = get_cliente(db, ticket.id_cliente)
         if cliente_db:
