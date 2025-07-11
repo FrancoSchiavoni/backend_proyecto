@@ -1,6 +1,7 @@
 from fastapi import Depends,HTTPException, status, APIRouter,Response, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
+from pydantic import BaseModel
 from passlib.context import CryptContext
 from datetime import datetime, timedelta,timezone
 from settings import settings
@@ -47,31 +48,31 @@ async def login(response: Response, db: Session = Depends(get_session), form: OA
     }
     refresh_token_payload = {
         "sub": user.email,
-        "exp": now + timedelta(days=1)
+        "exp": now + timedelta(days=7) # Puedes ajustar la duración del refresh token
     }
 
     access_token = jwt.encode(access_token_payload, settings.settings.secret_key, algorithm=settings.settings.algorithm)
     refresh_token = jwt.encode(refresh_token_payload, settings.settings.secret_key, algorithm=settings.settings.algorithm)
+    # Devolvemos AMBOS tokens en la respuesta JSON
+    return {
+        "access_token": access_token, 
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
 
-    # Set cookie segura
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="strict",
-        max_age=7*24*60*60,
-        path="/jwt/refresh"
-    )
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+from fastapi import Depends, HTTPException
 
-    return {"access_token": access_token, "token_type": "bearer"}
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
 
 @router.post("/refresh")
-async def refresh_token(request: Request):
-    refresh_token = request.cookies.get("refresh_token")
+async def refresh_token(request_body: RefreshTokenRequest):
+    refresh_token = request_body.refresh_token 
     if refresh_token is None:
-        raise HTTPException(status_code=401, detail="No hay token de refresh")
-
+        raise HTTPException(status_code=401, detail="No se proporcionó token de refresh")
     try:
         payload = jwt.decode(refresh_token, settings.settings.secret_key, algorithms=[settings.settings.algorithm])
         email = payload.get("sub")
@@ -80,6 +81,7 @@ async def refresh_token(request: Request):
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido o expirado")
 
+    # Creamos un nuevo token de acceso
     new_access_token = jwt.encode({
         "sub": email,
         "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.settings.access_token_duration)
