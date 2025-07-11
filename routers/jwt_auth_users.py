@@ -62,11 +62,6 @@ async def login(response: Response, db: Session = Depends(get_session), form: OA
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
-from fastapi import Depends, HTTPException
-
-
-class RefreshTokenRequest(BaseModel):
-    refresh_token: str
 
 @router.post("/refresh")
 async def refresh_token(request_body: RefreshTokenRequest):
