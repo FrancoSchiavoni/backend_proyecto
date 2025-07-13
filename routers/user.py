@@ -3,13 +3,13 @@ from sqlmodel import Session
 from db.client import get_session
 from schemas.user import UsuarioCreate, UsuarioRead
 from crud.user import get_usuario, get_usuarios, create_usuario, delete_usuario, get_usuario_email
-from typing import List
+from typing import List, Optional
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 @router.get("/", response_model=List[UsuarioRead])
-async def listar_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
-    return await get_usuarios(db, skip, limit)
+async def listar_usuarios(skip: int = 0, limit: int = 100, id_tipo: Optional[int] = None ,db: Session = Depends(get_session)):
+    return await get_usuarios(db, skip, limit, id_tipo=id_tipo)
 
 @router.get("/{usuario_id}", response_model=UsuarioRead)
 async def leer_usuario(usuario_id: int, db: Session = Depends(get_session)):
