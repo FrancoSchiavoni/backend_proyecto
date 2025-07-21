@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from db.client import get_session
 from db.models.ticket import Ticket
-from schemas.ticket import TicketConIntervenciones
-from crud.ticket import  create_ticket, get_all_tickets, get_ticket, filter_tickets
+from schemas.ticket import TicketConIntervenciones, TicketUpdate
+from crud.ticket import  create_ticket, get_all_tickets, get_ticket, filter_tickets, update_ticket
 from crud.cliente import get_cliente
 from crud.user import get_usuario
 from schemas.cliente import ClienteRead
@@ -53,3 +53,10 @@ async def leer_ticket_filtrados(client_id: int = None, id_personal_asignado: int
 @router.post("/", response_model=Ticket)
 async def crear_ticket(ticket: Ticket, db: Session = Depends(get_session)):
     return await create_ticket(db, ticket)
+
+@router.put("/{ticket_id}", response_model=Ticket)
+def actualizar_ticket(ticket_id: int, ticket: TicketUpdate, db: Session = Depends(get_session)): 
+    db_ticket = update_ticket(db, ticket_id, ticket)
+    if db_ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    return db_ticket

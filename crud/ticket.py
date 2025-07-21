@@ -2,7 +2,7 @@ from sqlmodel import Session, select
 from db.models.ticket import Ticket
 from db.models.cliente import Cliente
 from db.models.user import Usuario
-from schemas.ticket import TicketConIntervenciones
+from schemas.ticket import TicketUpdate
 #from schemas.ticket import UsuarioCreate
 
 
@@ -29,7 +29,6 @@ async def create_ticket(db: Session, ticket: Ticket):
 
 async def filter_tickets(db: Session, client_id, id_personal_asignado, id_estado):
     statement = select(Ticket)
-    
     if client_id is not None:
         statement = statement.where(Ticket.id_cliente == client_id)
     
@@ -41,3 +40,18 @@ async def filter_tickets(db: Session, client_id, id_personal_asignado, id_estado
     
     tickets = db.exec(statement).all()
     return tickets
+
+def update_ticket(db: Session, ticket_id: int, ticket_update: TicketUpdate) -> Ticket: # USA TicketUpdate
+    db_ticket = db.get(Ticket, ticket_id)
+    if not db_ticket:
+        return None
+
+    # model_dump(exclude_unset=True) para solo actualizar los campos que vienen en la petición
+    ticket_data = ticket_update.model_dump(exclude_unset=True)
+    for key, value in ticket_data.items():
+        setattr(db_ticket, key, value)
+
+    db.add(db_ticket)
+    db.commit()
+    db.refresh(db_ticket)
+    return db_ticket

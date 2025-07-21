@@ -32,4 +32,17 @@ class TicketConIntervenciones(TicketRead):
     cliente: Optional[ClienteRead] = None
     tecnico: Optional[str]  = None 
 
+class TicketUpdate(SQLModel):
+    titulo: Optional[str] = Field(default=None, max_length=500)
+    id_cliente: Optional[int] = None
+    id_personal_creador: Optional[int] = None
+    id_personal_asignado: Optional[int] = None
+    id_tipocaso: Optional[int] = None
+    id_estado: Optional[int] = None
+    id_prioridad: Optional[int] = None
+    fecha_tentativa_inicio: Optional[datetime] = None
+    fecha_tentativa_finalizacion: Optional[datetime] = None
+    ultima_modificacion: Optional[datetime] = datetime.utcnow()
+
+
 
