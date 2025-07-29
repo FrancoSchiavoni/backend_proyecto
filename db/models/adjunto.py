@@ -1,13 +1,17 @@
+# db/models/adjunto.py
+
 from datetime import datetime
-from typing import Optional,TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlmodel import Field, SQLModel, Relationship
 if TYPE_CHECKING:
     from db.models.ticket import Ticket
     from db.models.user import Usuario
+    from db.models.ticket_intervencion import TicketIntervencion
 
 class AdjuntoBase(SQLModel):
-    id_caso: Optional[int] = Field(default=None, foreign_key="ticket.id_caso")
+    id_caso: int = Field(foreign_key="ticket.id_caso")
+    id_intervencion: Optional[int] = Field(default=None, foreign_key="ticketintervencion.id_intervencion")
     id_usuario_autor: Optional[int] = Field(default=None, foreign_key="usuario.id_personal")
     filename: str = Field(index=True)
     filepath: str 
@@ -15,5 +19,7 @@ class AdjuntoBase(SQLModel):
 
 class Adjunto(AdjuntoBase, table=True):
     id_adjunto: Optional[int] = Field(default=None, primary_key=True)
+    # Relaciones
     ticket: Optional["Ticket"] = Relationship(back_populates="adjuntos")
+    intervencion: Optional["TicketIntervencion"] = Relationship(back_populates="adjuntos")
     usuario_autor: Optional["Usuario"] = Relationship(back_populates="adjuntos")

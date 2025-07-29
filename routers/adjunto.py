@@ -1,8 +1,11 @@
+# routers/adjunto.py
+
 import os
 import shutil
 from typing import List
+from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from fastapi.responses import FileResponse
 from sqlmodel import Session
 
@@ -11,6 +14,7 @@ from schemas.adjunto import AdjuntoRead
 from crud import adjunto as crud_adjunto
 
 from db.models.ticket import Ticket
+from db.models.ticket_intervencion import TicketIntervencion
 from db.models.user import Usuario 
 from routers.jwt_auth_users import current_user
 
@@ -19,40 +23,86 @@ router = APIRouter(prefix="/adjuntos", tags=["adjuntos"])
 UPLOAD_DIRECTORY = crud_adjunto.ATTACHMENT_DIR
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
-@router.post("/{ticket_id}", response_model=AdjuntoRead)
-async def upload_adjunto(
+@router.post("/ticket/{ticket_id}", response_model=AdjuntoRead, status_code=status.HTTP_201_CREATED)
+async def upload_adjunto_a_ticket(
     ticket_id: int,
-    current_user_id: Usuario = Depends(current_user),
     file: UploadFile = File(...),
+    current_user_obj: Usuario = Depends(current_user),
     db: Session = Depends(get_session)
 ):
-    # 1. Verificar que el ticket_id existe
+    """Sube un adjunto y lo asocia directamente a un ticket."""
     ticket = db.get(Ticket, ticket_id)
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
 
-    usuario_autor_id = current_user_id.id_personal
+    # --- LÓGICA DE NOMBRE MODIFICADA ---
+    date_str = datetime.now().strftime("%Y%m%d")
+    new_filename = f"{date_str}_ticket{ticket_id}_{file.filename}"
+    # --- FIN DE LA MODIFICACIÓN ---
 
-    relative_filepath = crud_adjunto.get_attachment_relative_path(file.filename)
-    file_location = os.path.join(UPLOAD_DIRECTORY, relative_filepath)
+    relative_path_dir = f"ticket_{ticket_id}"
+    relative_filepath = os.path.join(relative_path_dir, new_filename)
+    
+    full_dir_path = os.path.join(UPLOAD_DIRECTORY, relative_path_dir)
+    os.makedirs(full_dir_path, exist_ok=True)
 
-    # Guardar el archivo en el sistema de archivos
+    full_file_path = os.path.join(full_dir_path, new_filename)
     try:
-        with open(file_location, "wb") as buffer:
+        with open(full_file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al guardar el archivo: {e}")
 
-    # Crear el registro en la base de datos
     db_adjunto = await crud_adjunto.create_adjunto(
         db=db,
-        filename=file.filename, 
-        filepath=relative_filepath, 
+        filename=file.filename, # Se guarda el nombre original en la DB
+        filepath=relative_filepath, # Se guarda la ruta con el nuevo nombre
         ticket_id=ticket_id,
-        usuario_id=usuario_autor_id
+        intervencion_id=None,
+        usuario_id=current_user_obj.id_personal
     )
-
     return db_adjunto
+
+@router.post("/intervencion/{intervencion_id}", response_model=AdjuntoRead, status_code=status.HTTP_201_CREATED)
+async def upload_adjunto_a_intervencion(
+    intervencion_id: int,
+    file: UploadFile = File(...),
+    current_user_obj: Usuario = Depends(current_user),
+    db: Session = Depends(get_session)
+):
+    """Sube un adjunto y lo asocia a una intervención específica."""
+    intervencion = db.get(TicketIntervencion, intervencion_id)
+    if not intervencion:
+        raise HTTPException(status_code=404, detail="Intervención no encontrada")
+
+    # --- LÓGICA DE NOMBRE MODIFICADA ---
+    date_str = datetime.now().strftime("%Y%m%d")
+    new_filename = f"{date_str}_ticket{intervencion.id_caso}_intervencion{intervencion_id}_{file.filename}"
+    # --- FIN DE LA MODIFICACIÓN ---
+    
+    relative_path_dir = os.path.join(f"ticket_{intervencion.id_caso}", f"intervencion_{intervencion_id}")
+    relative_filepath = os.path.join(relative_path_dir, new_filename)
+
+    full_dir_path = os.path.join(UPLOAD_DIRECTORY, relative_path_dir)
+    os.makedirs(full_dir_path, exist_ok=True)
+
+    full_file_path = os.path.join(full_dir_path, new_filename)
+    try:
+        with open(full_file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al guardar el archivo: {e}")
+
+    db_adjunto = await crud_adjunto.create_adjunto(
+        db=db,
+        filename=file.filename, # Se guarda el nombre original en la DB
+        filepath=relative_filepath, # Se guarda la ruta con el nuevo nombre
+        ticket_id=intervencion.id_caso,
+        intervencion_id=intervencion_id,
+        usuario_id=current_user_obj.id_personal
+    )
+    return db_adjunto
+
 
 @router.get("/{adjunto_id}", response_class=FileResponse)
 async def download_adjunto(adjunto_id: int, db: Session = Depends(get_session)):
@@ -61,26 +111,24 @@ async def download_adjunto(adjunto_id: int, db: Session = Depends(get_session)):
     if not adjunto:
         raise HTTPException(status_code=404, detail="Adjunto no encontrado")
 
-    # Reconstruye la ruta completa del archivo
     file_path = os.path.join(UPLOAD_DIRECTORY, adjunto.filepath)
 
     if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="Archivo físico no encontrado")
+        raise HTTPException(status_code=404, detail="Archivo físico no encontrado en el servidor")
 
+    # Al descargar, se usa el nombre de archivo original guardado en la DB
     return FileResponse(path=file_path, filename=adjunto.filename, media_type="application/octet-stream")
 
 @router.get("/ticket/{ticket_id}", response_model=List[AdjuntoRead])
-async def get_adjuntos_ticket(ticket_id: int, db: Session = Depends(get_session)):
-    """Obtiene la lista de adjuntos para un ticket dado."""
+async def get_adjuntos_del_ticket(ticket_id: int, db: Session = Depends(get_session)):
+    """Obtiene la lista de todos los adjuntos para un ticket."""
     adjuntos = await crud_adjunto.get_adjuntos_by_ticket(db, ticket_id)
-    if not adjuntos:
-        raise HTTPException(status_code=404, detail="No se encontraron adjuntos para este ticket")
     return adjuntos
 
-@router.delete("/{adjunto_id}", response_model=bool)
-async def delete_adjunto(adjunto_id: int, db: Session = Depends(get_session)):
+@router.delete("/{adjunto_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_adjunto_endpoint(adjunto_id: int, db: Session = Depends(get_session)):
     """Elimina un adjunto por su ID."""
     success = await crud_adjunto.delete_adjunto(db, adjunto_id)
     if not success:
-        raise HTTPException(status_code=404, detail="Adjunto no encontrado o no se pudo eliminar")
-    return success
+        raise HTTPException(status_code=404, detail="Adjunto no encontrado")
+    return {"ok": True}

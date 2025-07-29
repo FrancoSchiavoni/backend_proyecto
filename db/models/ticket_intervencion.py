@@ -1,9 +1,10 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional,TYPE_CHECKING
+from typing import Optional,TYPE_CHECKING, List
 from datetime import datetime
 
 if TYPE_CHECKING:
     from db.models.ticket import Ticket
+    from db.models.adjunto import Adjunto # Importar Adjunto
 
 
 class TicketIntervencion(SQLModel, table=True):
@@ -16,3 +17,4 @@ class TicketIntervencion(SQLModel, table=True):
     tiempo_utilizado: int
     id_contacto: int
     ticket: Optional["Ticket"] = Relationship(back_populates="intervenciones")
+    adjuntos: List["Adjunto"] = Relationship(back_populates="intervencion")
