@@ -18,6 +18,7 @@ class AdjuntoCreate(SQLModel):
 # Esquema para leer un Adjunto (incluye el ID generado)
 class AdjuntoRead(AdjuntoBase):
     id_adjunto: int
+    id_intervencion: Optional[int] = None
     fecha: datetime 
 
 # Esquema para actualizar un Adjunto (campos opcionales)
