@@ -35,10 +35,8 @@ async def upload_adjunto_a_ticket(
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
 
-    # --- LÓGICA DE NOMBRE MODIFICADA ---
     date_str = datetime.now().strftime("%Y%m%d")
     new_filename = f"{date_str}_ticket{ticket_id}_{file.filename}"
-    # --- FIN DE LA MODIFICACIÓN ---
 
     relative_path_dir = f"ticket_{ticket_id}"
     relative_filepath = os.path.join(relative_path_dir, new_filename)
@@ -55,8 +53,8 @@ async def upload_adjunto_a_ticket(
 
     db_adjunto = await crud_adjunto.create_adjunto(
         db=db,
-        filename=file.filename, # Se guarda el nombre original en la DB
-        filepath=relative_filepath, # Se guarda la ruta con el nuevo nombre
+        filename=file.filename,
+        filepath=relative_filepath,
         ticket_id=ticket_id,
         intervencion_id=None,
         usuario_id=current_user_obj.id_personal
@@ -75,10 +73,8 @@ async def upload_adjunto_a_intervencion(
     if not intervencion:
         raise HTTPException(status_code=404, detail="Intervención no encontrada")
 
-    # --- LÓGICA DE NOMBRE MODIFICADA ---
     date_str = datetime.now().strftime("%Y%m%d")
     new_filename = f"{date_str}_ticket{intervencion.id_caso}_intervencion{intervencion_id}_{file.filename}"
-    # --- FIN DE LA MODIFICACIÓN ---
     
     relative_path_dir = os.path.join(f"ticket_{intervencion.id_caso}", f"intervencion_{intervencion_id}")
     relative_filepath = os.path.join(relative_path_dir, new_filename)
@@ -95,14 +91,13 @@ async def upload_adjunto_a_intervencion(
 
     db_adjunto = await crud_adjunto.create_adjunto(
         db=db,
-        filename=file.filename, # Se guarda el nombre original en la DB
-        filepath=relative_filepath, # Se guarda la ruta con el nuevo nombre
+        filename=file.filename,
+        filepath=relative_filepath,
         ticket_id=intervencion.id_caso,
         intervencion_id=intervencion_id,
         usuario_id=current_user_obj.id_personal
     )
     return db_adjunto
-
 
 @router.get("/{adjunto_id}", response_class=FileResponse)
 async def download_adjunto(adjunto_id: int, db: Session = Depends(get_session)):
