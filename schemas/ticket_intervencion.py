@@ -9,7 +9,7 @@ class TicketIntervencionBase(SQLModel):
     id_tipo_intervencion: int
     detalle: str
     tiempo_utilizado: int
-    id_contacto: int
+    id_contacto: str
 
 class IntervencionReadSinTicket(TicketIntervencionBase):
     id_caso: int
