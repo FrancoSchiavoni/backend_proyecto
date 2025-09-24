@@ -5,6 +5,7 @@ from schemas.cliente import ClienteRead
 
 class TicketBase(SQLModel):
     titulo: str = Field(max_length=500)
+    descripcion: str = Field(max_length=2000)
     id_cliente: int
     id_personal_creador: int
     id_personal_asignado: int
