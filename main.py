@@ -4,6 +4,18 @@ from sqlmodel import SQLModel
 from db.client import engine
 from routers import ticket, user, jwt_auth_users, cliente, adjunto, ticket_intervencion
 from routers import estado, prioridad, tipo_caso, tipo_usuario
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost:62985",  # The origin of your Flutter web app
+    "http://localhost",
+    "http://localhost:8080", # A common default for other local servers
+]
+
+
+
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -11,6 +23,13 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allows specific origins
+    allow_credentials=True, # Allows cookies to be included in requests
+    allow_methods=["*"],    # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],    # Allows all headers
+)
 
 app.include_router(jwt_auth_users.router)
 app.include_router(user.router)

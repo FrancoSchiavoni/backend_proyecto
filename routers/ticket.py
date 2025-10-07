@@ -46,9 +46,20 @@ async def leer_ticket(
 
     return response_ticket
 
-@router.get("/filter/", response_model=List[Ticket])
+@router.get("/filter/", response_model=List[TicketConIntervenciones])
 async def leer_ticket_filtrados(client_id: int = None, id_personal_asignado: int = None, id_estado: int = None, db: Session = Depends(get_session)):
-    return await filter_tickets(db, client_id, id_personal_asignado, id_estado)
+    tickets = await filter_tickets(db, client_id, id_personal_asignado, id_estado)
+
+    response_tickets = []
+    for ticket, cliente, tecnico in tickets:
+        ticket = TicketConIntervenciones.model_validate(ticket)
+        if cliente:
+            ticket.cliente = ClienteRead.model_validate(cliente)
+        if tecnico:
+            ticket.tecnico = tecnico.nombre if tecnico else None
+        response_tickets.append(ticket)
+    return response_tickets 
+
 
 @router.post("/", response_model=Ticket)
 async def crear_ticket(ticket: Ticket, db: Session = Depends(get_session)):
