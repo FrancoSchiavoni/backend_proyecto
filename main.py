@@ -7,7 +7,7 @@ from routers import estado, prioridad, tipo_caso, tipo_usuario
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
-    "http://localhost:62985",  # The origin of your Flutter web app
+    "http://localhost:*",  # The origin of your Flutter web app
     "http://localhost",
     "http://localhost:8080", # A common default for other local servers
 ]
@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Allows specific origins
+    allow_origins=["*"],  # Allows specific origins
     allow_credentials=True, # Allows cookies to be included in requests
     allow_methods=["*"],    # Allows all methods (GET, POST, etc.)
     allow_headers=["*"],    # Allows all headers
