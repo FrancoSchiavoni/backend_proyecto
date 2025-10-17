@@ -10,6 +10,7 @@ class UsuarioBase(SQLModel):
     email: Optional[str] = None
     fecha_ingreso: Optional[datetime] = None
     fecha_egreso: Optional[datetime] = None
+    profile_photo_url: Optional[str] = None
 
 class UsuarioCreate(UsuarioBase):
     password: str
