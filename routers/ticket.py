@@ -3,7 +3,7 @@ from sqlmodel import Session
 from db.client import get_session
 from db.models.ticket import Ticket
 from schemas.ticket import TicketConIntervenciones, TicketUpdate
-from crud.ticket import  create_ticket, get_all_tickets, get_ticket, filter_tickets, update_ticket
+from crud.ticket import  create_ticket, get_all_tickets, get_ticket, filter_tickets, update_ticket, count_tickets_by_status, count_tickets_last_7_days, count_completed_tickets_last_7_days, average_ticket_resolution_time, count_tickets_by_technician_and_status
 from crud.cliente import get_cliente
 from crud.user import get_usuario
 from schemas.cliente import ClienteRead
@@ -71,3 +71,17 @@ def actualizar_ticket(ticket_id: int, ticket: TicketUpdate, db: Session = Depend
     if db_ticket is None:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
     return db_ticket
+
+
+
+@router.get("/stats/all", response_model=dict)
+async def obtener_estadisticas_tickets(db: Session = Depends(get_session)):
+
+    stats = {
+        "tickets_por_estado": await count_tickets_by_status(db),
+        "tickets_ultimos_7_dias": await count_tickets_last_7_days(db),
+        "tickets_resueltos_ultimos_7_dias": await count_completed_tickets_last_7_days(db),
+        "tiempo_promedio_resolucion": await average_ticket_resolution_time(db),
+        "tickets_por_tecnico_y_estado": await count_tickets_by_technician_and_status(db)
+    } 
+    return stats
