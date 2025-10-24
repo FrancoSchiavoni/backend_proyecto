@@ -15,3 +15,17 @@ async def create_cliente(db: Session, cliente: ClienteCreate):
     db.refresh(db_cliente)
     return db_cliente
 
+
+def update_cliente(db: Session, cliente_id: int, cliente_data: Cliente):
+    db_cliente = get_cliente(db, cliente_id)
+    if not db_cliente:
+        return None
+
+    update_data = cliente_data.model_dump(exclude_unset=False) # Para PUT
+
+    for key, value in update_data.items():
+        setattr(db_cliente, key, value)
+
+    db.commit()
+    db.refresh(db_cliente)
+    return db_cliente
