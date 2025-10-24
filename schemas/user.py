@@ -29,3 +29,8 @@ class UserUpdate(BaseModel):
     fecha_ingreso: Optional[date] = None
     fecha_egreso: Optional[date] = None
     profile_photo_url: Optional[str] = None
+
+class ChangePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
+

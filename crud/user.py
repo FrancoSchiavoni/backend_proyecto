@@ -38,6 +38,20 @@ async def delete_usuario(db: Session, usuario_id: int) -> bool:
         return True
     return False
 
+async def change_user_password(db: Session, user: Usuario, new_password: str):
+    """
+    Cambia la contraseña de un usuario en la base de datos usando SQLModel.
+    """
+    hashed_new_password = get_password_hash(new_password)
+    user.password = hashed_new_password
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+
+
 async def update_user(db: Session, user_id: int, user_update_data: UserUpdate):
     """
     Actualiza un usuario en la base de datos usando SQLModel.

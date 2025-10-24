@@ -3,12 +3,15 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,
 from fastapi.responses import FileResponse
 from sqlmodel import Session
 from db.client import get_session
-from schemas.user import UsuarioCreate, UsuarioRead, UserUpdate
-from crud.user import get_usuario, get_usuarios, create_usuario, delete_usuario, update_user, get_usuario_email
+from passlib.context import CryptContext
+from schemas.user import  UsuarioCreate, UsuarioRead, UserUpdate, ChangePasswordRequest
+from crud.user import change_user_password, get_usuario, get_usuarios, create_usuario, delete_usuario, update_user, get_usuario_email
 from typing import List, Optional
 import os
 import shutil
 
+
+crypt = CryptContext(schemes=["bcrypt"])
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 PROFILE_PHOTOS_DIR = os.path.join("static", "profile_photos")
 
@@ -98,3 +101,18 @@ async def update_user_endpoint(usuario_id: int, user_data: UserUpdate, db: Sessi
     if db_user is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return db_user
+
+@router.put("/{usuario_id}/change_password", response_model=UsuarioRead)
+async def change_user_password_endpoint(
+    usuario_id: int, 
+    password_data: ChangePasswordRequest, 
+    db: Session = Depends(get_session)
+):
+    db_user = get_usuario(db, usuario_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    # Verificar la contraseña antigua
+    if not crypt.verify(password_data.old_password, db_user.password):
+        raise HTTPException(status_code=400, detail="La contraseña antigua no coincide")
+    updated_user = await change_user_password(db=db, user=db_user, new_password=password_data.new_password)
+    return updated_user
