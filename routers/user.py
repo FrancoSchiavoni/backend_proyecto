@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,
 from fastapi.responses import FileResponse
 from sqlmodel import Session
 from db.client import get_session
-from schemas.user import UsuarioCreate, UsuarioRead
-from crud.user import get_usuario, get_usuarios, create_usuario, delete_usuario, get_usuario_email
+from schemas.user import UsuarioCreate, UsuarioRead, UserUpdate
+from crud.user import get_usuario, get_usuarios, create_usuario, delete_usuario, update_user, get_usuario_email
 from typing import List, Optional
 import os
 import shutil
@@ -91,3 +91,10 @@ async def delete_profile_photo(usuario_id: int, db: Session = Depends(get_sessio
         db.commit()
         db.refresh(usuario)
     return usuario
+
+@router.put("/{usuario_id}", response_model=UsuarioRead)
+async def update_user_endpoint(usuario_id: int, user_data: UserUpdate, db: Session = Depends(get_session)):
+    db_user = await update_user(db=db, user_id=usuario_id, user_update_data=user_data)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return db_user

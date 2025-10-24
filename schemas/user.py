@@ -1,6 +1,8 @@
 from typing import Optional
 from datetime import datetime
 from sqlmodel import SQLModel, Field
+from datetime import date
+from pydantic import BaseModel
 
 class UsuarioBase(SQLModel):
     id_sucursal: int
@@ -17,3 +19,13 @@ class UsuarioCreate(UsuarioBase):
 
 class UsuarioRead(UsuarioBase):
     id_personal: int
+
+class UserUpdate(BaseModel):
+    nombre: Optional[str] = None
+    email: Optional[str] = None
+    telefono_movil: Optional[str] = None
+    id_sucursal: Optional[int] = None
+    id_tipo: Optional[int] = None
+    fecha_ingreso: Optional[date] = None
+    fecha_egreso: Optional[date] = None
+    profile_photo_url: Optional[str] = None

@@ -2,6 +2,7 @@ from typing import Optional
 from sqlmodel import Session, select
 from db.models.user import Usuario
 from schemas.user import UsuarioCreate
+from schemas.user import UserUpdate
 from settings.security import get_password_hash
 
 def get_usuario(db: Session, usuario_id: int):
@@ -36,3 +37,32 @@ async def delete_usuario(db: Session, usuario_id: int) -> bool:
         db.commit()
         return True
     return False
+
+async def update_user(db: Session, user_id: int, user_update_data: UserUpdate):
+    """
+    Actualiza un usuario en la base de datos usando SQLModel.
+    """
+    
+    # 1. Buscar el usuario (usamos db.get, igual que en tu delete_usuario)
+    # db.get es síncrono, pero está bien llamarlo dentro de un async def
+    # que FastAPI corre en un threadpool.
+    db_user = db.get(Usuario, user_id)
+
+    if db_user is None:
+        return None  # No se encontró el usuario
+
+    # 2. Obtener los datos del schema como un diccionario
+    # exclude_unset=True asegura que solo actualicemos los campos que se enviaron
+    update_data = user_update_data.model_dump(exclude_unset=True)
+
+    # 3. Actualizar el objeto de la base de datos
+    # SQLModel 0.0.12+ prefiere .sqlmodel_update() pero setattr es universal
+    for key, value in update_data.items():
+        setattr(db_user, key, value)
+
+    # 4. Guardar los cambios (igual que en tu create_usuario)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
+    return db_user
