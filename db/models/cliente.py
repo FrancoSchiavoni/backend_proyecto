@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional,Union
-from datetime import datetime
+from datetime import date, datetime
 
 
 class Cliente(SQLModel, table=True):
@@ -14,3 +14,5 @@ class Cliente(SQLModel, table=True):
     email: Optional[str] = Field(default=None, max_length=100)
     cuit: Optional[str] = Field(default=None, max_length=50)
     id_tipocliente: Optional[int] = Field(default=None)
+    activo: bool = Field(default=True)
+    fecha_baja: Optional[datetime] = None

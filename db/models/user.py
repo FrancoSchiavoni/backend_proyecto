@@ -14,5 +14,6 @@ class Usuario(SQLModel, table=True):
     fecha_ingreso: Union[datetime, None] = None
     fecha_egreso: Union[datetime, None] = None
     password: str
+    activo: bool = Field(default=True)
     profile_photo_url: Union[str, None] = Field(default=None, max_length=255)
     adjuntos: Optional[List["Adjunto"]] = Relationship(back_populates="usuario_autor")

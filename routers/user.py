@@ -97,6 +97,7 @@ async def delete_profile_photo(usuario_id: int, db: Session = Depends(get_sessio
 
 @router.put("/{usuario_id}", response_model=UsuarioRead)
 async def update_user_endpoint(usuario_id: int, user_data: UserUpdate, db: Session = Depends(get_session)):
+    print("Updating user:", usuario_id, user_data)
     db_user = await update_user(db=db, user_id=usuario_id, user_update_data=user_data)
     if db_user is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")

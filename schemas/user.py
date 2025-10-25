@@ -13,7 +13,7 @@ class UsuarioBase(SQLModel):
     fecha_ingreso: Optional[datetime] = None
     fecha_egreso: Optional[datetime] = None
     profile_photo_url: Optional[str] = None
-
+    activo: Optional[bool] = None
 class UsuarioCreate(UsuarioBase):
     password: str
 
@@ -26,8 +26,9 @@ class UserUpdate(BaseModel):
     telefono_movil: Optional[str] = None
     id_sucursal: Optional[int] = None
     id_tipo: Optional[int] = None
-    fecha_ingreso: Optional[date] = None
-    fecha_egreso: Optional[date] = None
+    activo: Optional[bool] = None
+    fecha_ingreso: Optional[datetime] = None
+    fecha_egreso: Optional[datetime] = None
     profile_photo_url: Optional[str] = None
 
 class ChangePasswordRequest(BaseModel):

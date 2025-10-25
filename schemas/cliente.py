@@ -1,4 +1,5 @@
 # schemas/cliente.py
+from datetime import date, datetime
 from typing import Optional
 from sqlmodel import SQLModel, Field
 
@@ -13,6 +14,8 @@ class ClienteCreate(SQLModel):
     email: Optional[str] = Field(default=None, max_length=100)
     cuit: Optional[str] = Field(default=None, max_length=50)
     id_tipocliente: Optional[int] = Field(default=None)
+    activo: bool = Field(default=True)
+    fecha_baja: Optional[datetime] = None
 
 # Schema para la lectura de un Cliente (lo que devuelve la API)
 class ClienteRead(ClienteCreate):
