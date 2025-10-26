@@ -80,3 +80,20 @@ async def update_user(db: Session, user_id: int, user_update_data: UserUpdate):
     db.refresh(db_user)
 
     return db_user
+
+async def update_last_login(db: Session, user_id: int):
+    """
+    Actualiza la fecha de último ingreso del usuario.
+    """
+    from datetime import datetime, timezone
+    
+    db_user = db.get(Usuario, user_id)
+    if db_user is None:
+        return None
+    
+    db_user.fecha_ingreso = datetime.now(timezone.utc)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    
+    return db_user

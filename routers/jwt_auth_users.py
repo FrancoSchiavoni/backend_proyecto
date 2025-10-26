@@ -8,7 +8,7 @@ from settings import settings
 from sqlmodel import Session
 from db.client import get_session
 from schemas.user import UsuarioRead
-from crud.user import get_usuario_email
+from crud.user import get_usuario_email, update_last_login
 
 
 router = APIRouter(prefix="/jwt", tags=["auth"], responses={404:{"message": "No encontrado"}})
@@ -40,6 +40,9 @@ async def login(response: Response, db: Session = Depends(get_session), form: OA
         raise HTTPException(status_code=400, detail="El usuario no es correcto")
     if not crypt.verify(form.password, user.password):
         raise HTTPException(status_code=400, detail="La contraseña no es correcta")
+
+    # Actualizar la fecha de último ingreso
+    await update_last_login(db, user.id_personal)
 
     now = datetime.now(timezone.utc)
     access_token_payload = {
