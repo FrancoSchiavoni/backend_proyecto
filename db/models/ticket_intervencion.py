@@ -15,6 +15,6 @@ class TicketIntervencion(SQLModel, table=True):
     id_tipo_intervencion: int
     detalle: str
     tiempo_utilizado: int
-    id_contacto: str
+    id_contacto: str = Field(default="")  # Campo vacío por defecto
     ticket: Optional["Ticket"] = Relationship(back_populates="intervenciones")
     adjuntos: List["Adjunto"] = Relationship(back_populates="intervencion")

@@ -9,16 +9,18 @@ class TicketIntervencionBase(SQLModel):
     id_tipo_intervencion: int
     detalle: str
     tiempo_utilizado: int
-    id_contacto: str
+    id_contacto: str = ""
 
 class IntervencionReadSinTicket(TicketIntervencionBase):
     id_caso: int
     id_intervencion: int
+    tipo_intervencion_label: Optional[str] = None
 
 class IntervencionRead(TicketIntervencionBase):
     id_caso: int
     id_intervencion: int
     ticket: Optional[TicketRead] = None
+    tipo_intervencion_label: Optional[str] = None
 
 
 class IntervencionCreate(TicketIntervencionBase):

@@ -31,6 +31,8 @@ async def leer_ticket(
     db: Session = Depends(get_session),
     incluir_cliente: bool = False
 ):
+    from crud.ticket_intervencion import get_intervenciones_ticket
+    
     ticket = get_ticket(db, ticket_id)
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
@@ -43,6 +45,10 @@ async def leer_ticket(
         cliente_db = get_cliente(db, ticket.id_cliente)
         if cliente_db:
             response_ticket.cliente = ClienteRead.model_validate(cliente_db)
+    
+    # Obtener intervenciones con labels
+    intervenciones = await get_intervenciones_ticket(db, ticket_id)
+    response_ticket.intervenciones = intervenciones
 
     return response_ticket
 
