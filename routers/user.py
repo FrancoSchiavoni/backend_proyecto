@@ -97,7 +97,6 @@ async def delete_profile_photo(usuario_id: int, db: Session = Depends(get_sessio
 
 @router.put("/{usuario_id}", response_model=UsuarioRead)
 async def update_user_endpoint(usuario_id: int, user_data: UserUpdate, db: Session = Depends(get_session)):
-    print("Updating user:", usuario_id, user_data)
     db_user = await update_user(db=db, user_id=usuario_id, user_update_data=user_data)
     if db_user is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -116,4 +115,16 @@ async def change_user_password_endpoint(
     if not crypt.verify(password_data.old_password, db_user.password):
         raise HTTPException(status_code=400, detail="La contraseña antigua no coincide")
     updated_user = await change_user_password(db=db, user=db_user, new_password=password_data.new_password)
+    return updated_user
+
+@router.put("/{usuario_id}/reset_password", response_model=UsuarioRead)
+async def reset_user_password_endpoint(
+    usuario_id: int, 
+    db: Session = Depends(get_session)
+):
+    db_user = get_usuario(db, usuario_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    # Resetear la contraseña a "1234"
+    updated_user = await change_user_password(db=db, user=db_user, new_password="1234")
     return updated_user
