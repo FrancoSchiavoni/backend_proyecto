@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from db.client import get_session
 from db.models.ticket import Ticket
-from schemas.ticket import TicketConIntervenciones, TicketUpdate
+from schemas.ticket import TicketConIntervenciones, TicketUpdate, TicketIntervencionBase as TicketIntervencionInline
 from crud.ticket import  create_ticket, get_all_tickets, get_ticket, filter_tickets, update_ticket, count_tickets_by_status, count_tickets_last_7_days, count_completed_tickets_last_7_days, average_ticket_resolution_time, count_tickets_by_technician_and_status
 from crud.cliente import get_cliente
 from crud.user import get_usuario
@@ -46,9 +46,11 @@ async def leer_ticket(
         if cliente_db:
             response_ticket.cliente = ClienteRead.model_validate(cliente_db)
     
-    # Obtener intervenciones con labels
+    # Obtener intervenciones con labels y convertir al schema esperado en TicketConIntervenciones
     intervenciones = await get_intervenciones_ticket(db, ticket_id)
-    response_ticket.intervenciones = intervenciones
+    response_ticket.intervenciones = [
+        TicketIntervencionInline.model_validate(interv) for interv in intervenciones
+    ]
 
     return response_ticket
 
