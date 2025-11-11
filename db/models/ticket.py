@@ -20,6 +20,7 @@ class Ticket(SQLModel, table=True):
     id_tipocaso: int
     id_estado: int
     id_prioridad: int
+    telefono_contacto: Optional[str] = Field(default=None, max_length=50)
     ultima_modificacion: Union[datetime, None] = Field(default=None)
     fecha_tentativa_inicio: Union[datetime, None] = Field(default=None)
     fecha_tentativa_finalizacion: Union[datetime, None] = Field(default=None)

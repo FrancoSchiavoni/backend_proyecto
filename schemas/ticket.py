@@ -6,6 +6,7 @@ from schemas.cliente import ClienteRead
 class TicketBase(SQLModel):
     titulo: str = Field(max_length=500)
     descripcion: str = Field(max_length=2000)
+    telefono_contacto: Optional[str] = Field(default=None, max_length=50)
     id_cliente: int
     id_personal_creador: int
     id_personal_asignado: int
@@ -42,6 +43,7 @@ class TicketUpdate(SQLModel):
     id_tipocaso: Optional[int] = None
     id_estado: Optional[int] = None
     id_prioridad: Optional[int] = None
+    telefono_contacto: Optional[str] = Field(default=None, max_length=50)
     fecha_tentativa_inicio: Optional[datetime] = None
     fecha_tentativa_finalizacion: Optional[datetime] = None
     ultima_modificacion: Optional[datetime] = datetime.utcnow()
