@@ -34,7 +34,7 @@ build/
 
 # Archivos específicos de FastAPI/Starlette
 instance/
-*.db
+
 
 # Archivos de cobertura
 htmlcov/

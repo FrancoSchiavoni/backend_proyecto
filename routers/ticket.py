@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
+from crud.ticket_calificacion import average_ticket_rating
 from db.client import get_session
 from db.models.ticket import Ticket
 from schemas.ticket import TicketConIntervenciones, TicketUpdate, TicketIntervencionBase as TicketIntervencionInline
@@ -90,6 +91,7 @@ async def obtener_estadisticas_tickets(db: Session = Depends(get_session)):
         "tickets_ultimos_7_dias": await count_tickets_last_7_days(db),
         "tickets_resueltos_ultimos_7_dias": await count_completed_tickets_last_7_days(db),
         "tiempo_promedio_resolucion": await average_ticket_resolution_time(db),
-        "tickets_por_tecnico_y_estado": await count_tickets_by_technician_and_status(db)
+        "tickets_por_tecnico_y_estado": await count_tickets_by_technician_and_status(db),
+        "promedio_calificacion_tickets": await average_ticket_rating(db)
     } 
     return stats

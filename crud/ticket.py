@@ -104,8 +104,11 @@ async def count_completed_tickets_last_7_days(db: Session):
     return db.exec(statement).one()
 
 
+
 # tickets por tecnico por estado
 async def count_tickets_by_technician_and_status(db: Session):
+    from db.models.ticket_calificacion import TicketCalificacion
+    
     # Use conditional aggregation (CASE WHEN) to pivot estados into columns
     statement = select(
         Ticket.id_personal_asignado,
@@ -117,15 +120,34 @@ async def count_tickets_by_technician_and_status(db: Session):
     ).join(Usuario, Ticket.id_personal_asignado == Usuario.id_personal).group_by(Ticket.id_personal_asignado, Usuario.nombre)
     
     rows = db.exec(statement).all()
+    
     # Convert to dicts with one row per technician, columns for each estado
-    return [
-        {
+    result = []
+    for row in rows:
+        tecnico_id = row[0]
+        
+        # Calcular promedio de calificaciones para este técnico
+        # Solo consideramos tickets finalizados (estado 3) que tienen calificación
+        avg_statement = select(
+            func.avg(TicketCalificacion.puntuacion)
+        ).join(
+            Ticket, TicketCalificacion.id_caso == Ticket.id_caso
+        ).where(
+            Ticket.id_personal_asignado == tecnico_id
+        ).where(
+            TicketCalificacion.puntuacion.isnot(None)
+        )
+        
+        avg_rating = db.exec(avg_statement).one_or_none()
+        
+        result.append({
             "id_personal_asignado": row[0],
             "nombre_tecnico": row[1],
             "pendientes": row[2],
             "en_progreso": row[3],
             "finalizados": row[4],
             "cancelados": row[5],
-        }
-        for row in rows
-    ]
+            "promedio_calificacion": round(float(avg_rating), 2) if avg_rating is not None else None
+        })
+    
+    return result

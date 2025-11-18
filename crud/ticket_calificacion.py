@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlmodel import Session, select
 from db.models.ticket_calificacion import TicketCalificacion
 from db.models.ticket import Ticket
@@ -94,3 +95,10 @@ def update_calificacion(
     db.commit()
     db.refresh(calificacion)
     return calificacion
+
+
+# promedio de calificacion de tickets de la tabla ticket_calificacion
+async def average_ticket_rating(db: Session):
+    statement = select(func.avg(TicketCalificacion.puntuacion).label("avg_rating"))
+    rows = db.exec(statement).one()
+    return float(rows) if rows is not None else 0.0
