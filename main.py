@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from sqlmodel import SQLModel
 from db.client import engine
 from routers import ticket, user, jwt_auth_users, cliente, adjunto, ticket_intervencion
-from routers import estado, prioridad, tipo_caso, tipo_usuario
+from routers import estado, prioridad, tipo_caso, tipo_usuario, ticket_calificacion
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
@@ -41,5 +41,6 @@ app.include_router(estado.router)
 app.include_router(prioridad.router)
 app.include_router(tipo_caso.router)
 app.include_router(tipo_usuario.router)
+app.include_router(ticket_calificacion.router)  # Sin autenticación para acceso público
 
 

@@ -44,9 +44,14 @@ async def filter_tickets(db: Session, client_id, id_personal_asignado, id_estado
     return tickets
 
 def update_ticket(db: Session, ticket_id: int, ticket_update: TicketUpdate) -> Ticket: # USA TicketUpdate
+    from crud.ticket_calificacion import create_calificacion_token
+    
     db_ticket = db.get(Ticket, ticket_id)
     if not db_ticket:
         return None
+
+    # Guardar el estado anterior para detectar cambios
+    old_estado = db_ticket.id_estado
 
     # model_dump(exclude_unset=True) para solo actualizar los campos que vienen en la petición
     ticket_data = ticket_update.model_dump(exclude_unset=True)
@@ -56,6 +61,12 @@ def update_ticket(db: Session, ticket_id: int, ticket_update: TicketUpdate) -> T
     db.add(db_ticket)
     db.commit()
     db.refresh(db_ticket)
+    
+    # Si el ticket cambió a estado "Resuelto" (3) o "Cerrado" (4), generar token de calificación
+    new_estado = db_ticket.id_estado
+    if old_estado != new_estado and new_estado in [3]:
+        create_calificacion_token(db, ticket_id)
+    
     return db_ticket
 
 
