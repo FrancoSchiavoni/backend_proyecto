@@ -1,15 +1,43 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from db.client import get_session
-from crud.ticket_calificacion import get_calificacion_by_token, update_calificacion
+from crud.ticket_calificacion import get_calificacion_by_token, update_calificacion, get_calificacion_by_ticket
 from crud.ticket import get_ticket
 from schemas.ticket_calificacion import (
     CalificacionRequest, 
     CalificacionTokenResponse, 
-    CalificacionSubmitResponse
+    CalificacionSubmitResponse,
+    GetCalificacionResponse
 )
 
 router = APIRouter(prefix="/calificacion", tags=["calificacion"])
+
+# get calification by id_caso
+@router.get("/ticket/{id_caso}", response_model=GetCalificacionResponse)
+async def obtener_calificacion(id_caso: int, db: Session = Depends(get_session)):
+    """
+    Obtiene la calificación asociada a un caso específico.
+    
+    - **id_caso**: ID del caso/ticket
+    
+    Retorna la calificación si existe, de lo contrario retorna un error 404.
+    """
+    # Buscar calificación por id_caso
+    calificacion = get_calificacion_by_ticket(db, id_caso)
+    
+    # Validar que la calificación existe
+    if not calificacion:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Calificación no encontrada para el caso especificado"
+        )
+    return GetCalificacionResponse(
+        id_calificacion=calificacion.id_calificacion,
+        id_caso=calificacion.id_caso,
+        puntuacion=calificacion.puntuacion,
+        comentario_cliente=calificacion.comentario_cliente,
+        fecha_calificacion=calificacion.fecha_calificacion.isoformat() if calificacion.fecha_calificacion else None   
+    )
 
 
 @router.get("/{token}", response_model=CalificacionTokenResponse)
