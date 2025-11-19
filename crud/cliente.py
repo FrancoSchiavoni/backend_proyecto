@@ -5,6 +5,10 @@ from schemas.cliente import ClienteCreate
 def get_cliente(db: Session, cliente_id: int):
     return db.get(Cliente, cliente_id)
 
+def get_cliente_by_email(db: Session, email: str):
+    statement = select(Cliente).where(Cliente.email == email)
+    return db.exec(statement).first()
+
 async def get_clientes(db: Session, skip: int = 0):
     return db.exec(select(Cliente).offset(skip)).all()
 
