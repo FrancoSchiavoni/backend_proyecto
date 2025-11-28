@@ -11,7 +11,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-WEBHOOK_URL = "https://n8n.srv1039921.hstgr.cloud/webhook-test/csat-survey-trigger"
+WEBHOOK_URL = "https://n8n.srv1039921.hstgr.cloud/webhook/csat-survey-trigger"
 
 
 def get_calificacion_by_token(db: Session, token: str) -> Optional[TicketCalificacion]:
