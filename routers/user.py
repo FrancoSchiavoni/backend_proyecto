@@ -97,6 +97,15 @@ async def delete_profile_photo(usuario_id: int, db: Session = Depends(get_sessio
 
 @router.put("/{usuario_id}", response_model=UsuarioRead)
 async def update_user_endpoint(usuario_id: int, user_data: UserUpdate, db: Session = Depends(get_session)):
+    # verificamos si el usuario está intentando cambiar el email
+    if user_data.email is not None:
+        usuario_con_mismo_email = await get_usuario_email(db, email=user_data.email)
+        # Si existe un usuario con ese email Y su ID es distinto al que estamos editando
+        if usuario_con_mismo_email and usuario_con_mismo_email.id_personal != usuario_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, 
+                detail="El email ya está registrado por otro usuario"
+            )
     db_user = await update_user(db=db, user_id=usuario_id, user_update_data=user_data)
     if db_user is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
