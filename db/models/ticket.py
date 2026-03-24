@@ -1,14 +1,14 @@
 
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional,Union,List,TYPE_CHECKING
+from typing import Optional, Union, List, TYPE_CHECKING
 from datetime import datetime
+
 if TYPE_CHECKING:
     from db.models.adjunto import Adjunto
-from typing import List
-if TYPE_CHECKING:
     from db.models.ticket_intervencion import TicketIntervencion
+    from db.models.ticket_visita import TicketVisita
 
-    
+
 class Ticket(SQLModel, table=True):
     id_caso: Union[int, None] = Field(default=None, primary_key=True)
     fecha: Union[datetime, None] = Field(default=None)
@@ -22,7 +22,6 @@ class Ticket(SQLModel, table=True):
     id_prioridad: int
     telefono_contacto: Optional[str] = Field(default=None, max_length=50)
     ultima_modificacion: Union[datetime, None] = Field(default=None)
-    fecha_tentativa_inicio: Union[datetime, None] = Field(default=None)
-    fecha_tentativa_finalizacion: Union[datetime, None] = Field(default=None)
     adjuntos: Optional[List["Adjunto"]] = Relationship(back_populates="ticket")
     intervenciones: list["TicketIntervencion"] = Relationship(back_populates="ticket")
+    visitas: list["TicketVisita"] = Relationship(back_populates="ticket")

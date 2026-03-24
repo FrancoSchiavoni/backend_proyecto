@@ -2,7 +2,7 @@ from fastapi import FastAPI,Depends
 from contextlib import asynccontextmanager
 from sqlmodel import SQLModel
 from db.client import engine
-from routers import ticket, user, jwt_auth_users, cliente, adjunto, ticket_intervencion
+from routers import ticket, user, jwt_auth_users, cliente, adjunto, ticket_intervencion, ticket_visita
 from routers import estado, prioridad, tipo_caso, tipo_usuario, ticket_calificacion
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -36,6 +36,7 @@ app.include_router(user.router)
 app.include_router(cliente.router, dependencies=[Depends(jwt_auth_users.current_user)])
 app.include_router(ticket.router, dependencies=[Depends(jwt_auth_users.current_user)])
 app.include_router(ticket_intervencion.router, dependencies=[Depends(jwt_auth_users.current_user)])
+app.include_router(ticket_visita.router, dependencies=[Depends(jwt_auth_users.current_user)])
 app.include_router(adjunto.router)
 app.include_router(estado.router)
 app.include_router(prioridad.router)

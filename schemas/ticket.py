@@ -1,7 +1,9 @@
-from typing import Optional,TYPE_CHECKING, List
+from typing import Optional, TYPE_CHECKING, List
 from datetime import datetime
 from sqlmodel import SQLModel, Field
-from schemas.cliente import ClienteRead 
+from schemas.cliente import ClienteRead
+from schemas.ticket_visita import TicketVisitaRead
+
 
 class TicketBase(SQLModel):
     titulo: str = Field(max_length=500)
@@ -13,8 +15,6 @@ class TicketBase(SQLModel):
     id_tipocaso: int
     id_estado: int
     id_prioridad: int
-    fecha_tentativa_inicio: Optional[datetime] = None
-    fecha_tentativa_finalizacion: Optional[datetime] = None
 
 class TicketRead(TicketBase):
     id_caso: int
@@ -32,11 +32,13 @@ class TicketIntervencionBase(SQLModel):
 
 class TicketConIntervenciones(TicketRead):
     intervenciones: list[TicketIntervencionBase] = []
+    visitas: list[TicketVisitaRead] = []
     cliente: Optional[ClienteRead] = None
-    tecnico: Optional[str]  = None 
+    tecnico: Optional[str] = None
 
 class TicketUpdate(SQLModel):
     titulo: Optional[str] = Field(default=None, max_length=500)
+    descripcion: Optional[str] = Field(default=None, max_length=2000)
     id_cliente: Optional[int] = None
     id_personal_creador: Optional[int] = None
     id_personal_asignado: Optional[int] = None
@@ -44,9 +46,4 @@ class TicketUpdate(SQLModel):
     id_estado: Optional[int] = None
     id_prioridad: Optional[int] = None
     telefono_contacto: Optional[str] = Field(default=None, max_length=50)
-    fecha_tentativa_inicio: Optional[datetime] = None
-    fecha_tentativa_finalizacion: Optional[datetime] = None
     ultima_modificacion: Optional[datetime] = datetime.utcnow()
-
-
-
